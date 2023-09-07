@@ -1,6 +1,6 @@
 import ResearchCompiler from './research_compiler.js';
-import QA from './qa.js';
 import QuestionCreationChain from './questions_creation_chain.js';
 import MostPertinentQuestion from './most_pertinent_question.js';
+import { RetrievalStuffQA } from './retrieval_stuff_qa.js';
 
-export {QA, ResearchCompiler, QuestionCreationChain, MostPertinentQuestion};
+export {ResearchCompiler, QuestionCreationChain, MostPertinentQuestion, RetrievalStuffQA};

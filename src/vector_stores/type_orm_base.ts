@@ -1,6 +1,3 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
 import { DataSourceOptions } from "typeorm";
 import {
     TypeORMVectorStore,
@@ -24,14 +21,10 @@ class TypeORMStore {
      * id: uuid, pageContent: text, metadata: jsonb, vector: vector_embeddings
      * Default tablename is torm_embeddings
      */
+    
     type = "postgres";
-    port = 5432;
-    host = "localhost";
-    tableName = "torm_embeddings";
-    username = process.env.PGVECTOR_USER;
-    password = process.env.PGVECTOR_PASSWORD;
-    database = process.env.PGVECTOR_DATABASE;
     embeddings: Embeddings;
+    tableName = "torm_embeddings";
 
     dbOptions: TypeORMVectorStoreArgs;
 
@@ -39,11 +32,11 @@ class TypeORMStore {
         this.dbOptions = {
             postgresConnectionOptions: {
                 type: this.type,
-                host: options?.host || this.host,
-                port: options?.port || this.port,
-                username: options?.username || this.username,
-                password: options?.password || this.password,
-                database: options?.database || this.database,
+                host: options?.host || '',
+                port: options?.port || '',
+                username: options?.username || '',
+                password: options?.password || '',
+                database: options?.database || '',
             } as DataSourceOptions,
             tableName: options?.tableName || this.tableName,
             verbose: true,
@@ -63,8 +56,3 @@ class TypeORMStore {
 
 export {DatabaseConnOptions, TypeORMStore}
 
-// const embeddings = new OpenAIEmbeddings();
-// const typeORM = new TypeORMStore(embeddings);
-// const store = await typeORM.store();
-
-// store.ensureTableInDatabase();
