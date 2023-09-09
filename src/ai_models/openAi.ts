@@ -8,10 +8,11 @@ const embeddingModel = new OpenAIEmbeddings({openAIApiKey: process.env.OPENAI_AP
 
 class ChatModel {
 
-   static model(temperature: number): ChatOpenAI {
+   static model(temperature: number, verbose?: boolean): ChatOpenAI {
         return new ChatOpenAI({
             temperature: temperature,
             openAIApiKey: process.env.OPENAI_API_KEY,
+            verbose: verbose || false
         });
     }
 }

@@ -13,16 +13,14 @@ const model = ChatModel.model(0);
 const retriever = store.asRetriever();
 
 const promptTemplate =
-    "Use the following pieces of context" +
-    " Context:" +
-    " {context}" +
-    " Your objective is to answer the following question" +
-    " Question:" +
-    " {question}" +
-    " Answer based only on the context and no other previous knowledge" +
-    " don't try to make up an answer." +
-    " If you don't know the answer, just say that you don't know," +
-    " Answer in less than 200 words." +
+    "Use the following pieces of context\n" +
+    " Context: {context}\n --- \n" +
+    " Your objective is to answer the following question\n" +
+    " Question:{question}\n --- \n" +
+    " Answer based only on the context and no other previous knowledge.\n" +
+    " don't try to make up an answer.\n" +
+    " If you don't know the answer, just say that you don't know.\n" +
+    " Answer in less than 200 words.\n" +
     " Answer :";
 
 const prompt = PromptTemplate.fromTemplate(promptTemplate);
@@ -53,12 +51,3 @@ export class RetrievalStuffQA extends RetrievalQAChain {
         });
     }
 }
-
-
-// const chain = RetrievalStuffQA.from_llm(model, retriever, {verbose: false, returnSourceDocuments: true})
-
-// const { text, sourceDocuments } = await chain.call({
-//     query: "Why did mahabharata war happen?",
-// });
-
-// console.log(text, sourceDocuments);

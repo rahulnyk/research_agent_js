@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@supabase/supabase-js": "^2.33.1",
+    "colors": "^1.4.0",
     "csv-parse": "^5.5.0",
     "d3-dsv": "^2.0.0",
     "dotenv": "^16.3.1",

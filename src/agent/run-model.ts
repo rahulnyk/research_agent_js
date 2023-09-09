@@ -1,9 +1,14 @@
 import { Document } from "langchain/document";
 import { v4 } from "uuid";
 
-type AgentLifecycle = "starting" | "running" | "stopping" | "stopped" | "completed";
+export type AgentLifecycle =
+    | "starting"
+    | "running"
+    | "stopping"
+    | "stopped"
+    | "completed";
 
-type QuestionStatus = "answered" | "unanswered" | "current";
+export type QuestionStatus = "answered" | "unanswered" | "current";
 
 export type Question = {
     id: number;
@@ -31,16 +36,21 @@ interface RunModel {
 
     getAnsweredQuestions(): Question[];
 
-    getCurrentQuestion(): string;
+    getAllQuestions(): Question[];
 
-    getLastQuestionId(): number; // so the next set of questions have unique ids. 
+    getCurrentQuestionString(): string;
+
+    setCurrentQuestion(question: Question): void;
+
+    setCurrentAnswer(answer: string): void;
+
+    getLastQuestionId(): number; // so the next set of questions have unique ids.
 
     addQuestions(questions: Question[]): void;
 
     addDocuments(documents: Document[]): void;
 
     setAnswerpad(answer: string): void;
-
 }
 
 export class AgentRunModel implements RunModel {
@@ -73,21 +83,42 @@ export class AgentRunModel implements RunModel {
 
     getAnsweredQuestions(): Question[] {
         // filter answered questions
-        let unansweredQuestions = this.run.questions.filter(q => {
-            q.status == 'unanswered'
-        })
-        return unansweredQuestions;
-    }
-
-    getUnansweredQuestions(): Question[] {
-        let answeredQuestions = this.run.questions.filter(q => {
-            q.status == 'answered'
-        })
+        let answeredQuestions = this.run.questions.filter((q) => {
+            return q.status == "answered";
+        });
         return answeredQuestions;
     }
 
-    getCurrentQuestion(): string {
-        return this.currentQuestion?.question || this.run.originalQuestion
+    getUnansweredQuestions(): Question[] {
+        let unansweredQuestions = this.run.questions.filter((q) => {
+            return q.status == "unanswered";
+        });
+        return unansweredQuestions;
+    }
+
+    getAllQuestions(): Question[] {
+        return this.run.questions;
+    }
+
+    getCurrentQuestionString(): string {
+        return this.currentQuestion?.question || this.run.originalQuestion;
+    }
+
+    setCurrentQuestion(question: Question): void {
+        this.currentQuestion = question;
+        // consider the current question to be answered
+        let index = this.run.questions.findIndex((q) => q.id == question.id);
+        this.run.questions[index].status = "answered";
+    }
+
+    setCurrentAnswer(answer: string): void {
+        const questionId = this.currentQuestion?.id;
+        if (questionId) {
+            let index = this.run.questions.findIndex((q) => q.id == questionId);
+            this.run.questions[index].answer = answer;
+        } else {
+            console.error("Current Question id not found");
+        }
     }
 
     addQuestions(questions: Question[]): void {
@@ -101,12 +132,10 @@ export class AgentRunModel implements RunModel {
     }
 
     addDocuments(documents: Document[]): void {
-        this.run.documents.push(...documents)
+        this.run.documents.push(...documents);
     }
 
     setAnswerpad(answer: string): void {
         this.run.answerpad = answer;
     }
-
 }
-
