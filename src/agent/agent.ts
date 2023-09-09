@@ -21,12 +21,23 @@ import {
     unansweredQuestionsColor,
     thoughtColor,
     errorColor,
+    answerColor,
+    finalAsnwerColor,
 } from "../helpers/colors.js";
+
+import {
+    logThought,
+    logAnswer,
+    logFinalAnswer,
+    logQuestions,
+    logNextQuestion,
+    logIteration,
+    logError,
+} from "../helpers/agentLogger.js";
 
 class Agent {
     runModel: AgentRunModel;
     modelSettings: ModelSettings;
-    loop = true;
     verbose = false;
     vectorStore: VectorStore;
     questionCreationChain: QuestionsCreationChain;
@@ -66,13 +77,11 @@ class Agent {
     async run() {
         let currentIter = 0;
         this.runModel.agentLifeCycle = "running";
+        logThought("Researching on:\n", 0);
+        logQuestions(this.runModel.getOriginalQuestion(), 0);
         do {
             currentIter++;
-            console.log(
-                iterationColor(
-                    `\n__________ Current Iteraiton: ${currentIter} ___________\n`
-                )
-            );
+
             let currentQuestion = this.runModel.getCurrentQuestionString();
 
             /** STEP 1
@@ -85,8 +94,14 @@ class Agent {
             // For the first run, the answer should be added to the answerpad.
             if (currentIter == 1) {
                 this.runModel.setAnswerpad(currentAnswer);
+
+                logThought("Here is Some Initial Information: \n", currentIter);
+                logAnswer(currentAnswer, currentIter);
             } else {
                 this.runModel.setCurrentAnswer(currentAnswer);
+
+                logThought("Answer: \n", currentIter);
+                logAnswer(currentAnswer, currentIter);
             }
             this.runModel.addDocuments(currentDocuments);
             // console.log(currentQuestion, currentAnswer);
@@ -114,11 +129,12 @@ class Agent {
                 newQuestionsResponse,
                 "unanswered"
             );
-            console.log("Start Id -> ", startId);
-            console.log(
-                thoughtColor("\nThese are the new Questions I can ask:\n"),
-                newQuestionsResponse
+
+            logThought(
+                "\nThese are the new Questions I can ask:\n",
+                currentIter
             );
+            logQuestions(newQuestionsResponse, currentIter);
 
             this.runModel.addQuestions(newQuestions);
 
@@ -139,23 +155,37 @@ class Agent {
             );
             this.runModel.setCurrentQuestion(nextQuestion[0]);
 
-            console.log(
-                thoughtColor("\nNext Question I need to ask:\n"),
-                nextQuestionColor(this.runModel.getCurrentQuestionString())
+            logThought("Next Question I need to ask:\n", currentIter);
+            logNextQuestion(
+                this.runModel.getCurrentQuestionString(),
+                currentIter
             );
 
             if (currentIter >= this.modelSettings.maxIter) {
-                console.log(
-                    iterationColor(
-                        `\n__________ Max Iterations Reached ___________\n`
-                    )
+                logThought(
+                    "I am done with maximum allowed Iterations",
+                    currentIter
                 );
                 this.runModel.agentLifeCycle = "stopping";
             }
         } while (this.runModel.agentLifeCycle != "stopping");
 
+        /** STEP 4
+         * Compile the results if max iterations are done
+         */
+        let finalAnswer = await this.compiler.predict({
+            question: this.runModel.getOriginalQuestion(),
+            context: this.runModel.getAllAnsweresString(),
+            prevAnswer: this.runModel.getAnswerpad(),
+        });
+        this.runModel.setFinalAnswer(finalAnswer);
+
+        logThought(
+            `Here is the final answer after ${this.modelSettings.maxIter} hops:\n`
+        );
+        logFinalAnswer(finalAnswer);
+
         this.runModel.agentLifeCycle = "stopped";
-        console.log(this.runModel.run.questions);
 
         return this.runModel;
     }

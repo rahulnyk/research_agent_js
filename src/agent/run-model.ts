@@ -21,8 +21,9 @@ type runStore = {
     id: string;
     originalQuestion: string;
     questions: Question[];
-    answerpad: string;
+    answerpad: string | undefined;
     documents: Document[];
+    finalAnswer: string | undefined;
 };
 
 interface RunModel {
@@ -50,7 +51,13 @@ interface RunModel {
 
     addDocuments(documents: Document[]): void;
 
+    getAnswerpad(): string | undefined;
+
     setAnswerpad(answer: string): void;
+
+    getAllAnsweresString(): string;
+
+    setFinalAnswer(answer: string): void;
 }
 
 export class AgentRunModel implements RunModel {
@@ -63,8 +70,9 @@ export class AgentRunModel implements RunModel {
             id: v4().toString(),
             originalQuestion: originalQuestion,
             questions: [],
-            answerpad: "",
+            answerpad: undefined,
             documents: [],
+            finalAnswer: undefined,
         };
         this.agentLifeCycle = "running";
     }
@@ -135,7 +143,29 @@ export class AgentRunModel implements RunModel {
         this.run.documents.push(...documents);
     }
 
+    getAnswerpad(): string | undefined {
+        return this.run.answerpad;
+    }
+
     setAnswerpad(answer: string): void {
         this.run.answerpad = answer;
+    }
+
+    getAllAnsweresString(): string {
+        /**
+         * this method compiles all the answered questions into a string
+         * The string format:
+         * "Questions - question?\n Answer - answer  \n"
+         * This is used to stuff the compiler prompt with context
+         */
+        let answeredQuestions = this.getAnsweredQuestions();
+        let answers = answeredQuestions.reduce((c, q) => {
+            return c + `Question - ${q.question}\n Answer - ${q.answer}\n`
+        }, '')
+        return answers;
+    }
+
+    setFinalAnswer(answer: string): void {
+        this.run.finalAnswer = answer;
     }
 }
