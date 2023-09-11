@@ -26,7 +26,6 @@ import {
     logIteration,
     logError,
 } from "../helpers/agentLogger.js";
-import { BaseLanguageModel } from "langchain/base_language";
 
 class Agent {
     runModel: AgentRunModel;
@@ -42,7 +41,6 @@ class Agent {
         originalQuestion: string,
         vectorStore: VectorStore,
         agentSettings: AgentSettings,
-
         verbose?: boolean,
     ) {
         this.runModel = new AgentRunModel(originalQuestion);
@@ -51,18 +49,18 @@ class Agent {
         this.runModel.agentLifeCycle = "starting";
         this.verbose = verbose || this.verbose;
         this.questionCreationChain = QuestionsCreationChain.from_llm(
-            OAILLM.model(this.agentSettings.questionCreationTemperature)
+            ChatModel.model(this.agentSettings.questionCreationTemperature)
         );
         this.mostPertinentQuestion = MostPertinentQuestion.from_llm(
-            OAILLM.model(
+            ChatModel.model(
                 this.agentSettings.questionPrioritisationTemperature
             )
         );
         this.compiler = ResearchCompiler.from_llm(
-            OAILLM.model(this.agentSettings.compilerTemperature)
+            ChatModel.model(this.agentSettings.compilerTemperature)
         );
         this.qaChain = RetrievalStuffQA.from_llm(
-            OAILLM.model(this.agentSettings.qaChainTemperature),
+            ChatModel.model(this.agentSettings.qaChainTemperature),
             vectorStore.asRetriever(),
             { verbose: false, returnSourceDocuments: true }
         );
