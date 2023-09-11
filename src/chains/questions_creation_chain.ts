@@ -1,9 +1,8 @@
 import * as dotenv from "dotenv";
+dotenv.config();
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { BaseChatModel } from "langchain/chat_models";
-
-dotenv.config();
+import { BaseLanguageModel } from "langchain/base_language";
 
 const PROMPT =
     "You are a research agent who is provided with a user query and some context \n" +
@@ -20,11 +19,11 @@ const PROMPT =
     " Start the list with number {startId}\n";
 
 class QuestionsCreationChain extends LLMChain {
-    constructor(prompt: PromptTemplate, llm: BaseChatModel) {
+    constructor(prompt: PromptTemplate, llm: BaseLanguageModel) {
         super({ prompt, llm });
     }
 
-    static from_llm(llm: BaseChatModel): LLMChain {
+    static from_llm(llm: BaseLanguageModel): LLMChain {
         const questionCreationTemplate: string = PROMPT;
         const prompt = new PromptTemplate({
             template: questionCreationTemplate,

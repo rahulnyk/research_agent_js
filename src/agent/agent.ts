@@ -1,29 +1,21 @@
 // import { Document } from "langchain/document";
 // import { Question } from "./run-model.js";
 import { AgentRunModel } from "./run-model.js";
-import { ModelSettings } from "./model-settings.js";
+import { AgentSettings } from "./agent-settings.js";
 import {
     ResearchCompiler,
     QuestionsCreationChain,
     MostPertinentQuestion,
     RetrievalStuffQA,
 } from "../chains/index.js";
-import { ChatModel } from "../ai_models/openAi.js";
+import { ChatModel } from "../ai_models/openAIChat.js";
+import { OAILLM } from "../ai_models/openAILLM.js";
 import { VectorStore } from "langchain/vectorstores";
 import {
     string2Questions,
     questions2String,
     documents2String,
 } from "../helpers/responseHelpers.js";
-import {
-    iterationColor,
-    nextQuestionColor,
-    unansweredQuestionsColor,
-    thoughtColor,
-    errorColor,
-    answerColor,
-    finalAsnwerColor,
-} from "../helpers/colors.js";
 
 import {
     logThought,
@@ -34,10 +26,11 @@ import {
     logIteration,
     logError,
 } from "../helpers/agentLogger.js";
+import { BaseLanguageModel } from "langchain/base_language";
 
 class Agent {
     runModel: AgentRunModel;
-    modelSettings: ModelSettings;
+    agentSettings: AgentSettings;
     verbose = false;
     vectorStore: VectorStore;
     questionCreationChain: QuestionsCreationChain;
@@ -48,27 +41,28 @@ class Agent {
     constructor(
         originalQuestion: string,
         vectorStore: VectorStore,
-        modelSettings: ModelSettings,
-        verbose?: boolean
+        agentSettings: AgentSettings,
+
+        verbose?: boolean,
     ) {
         this.runModel = new AgentRunModel(originalQuestion);
         this.vectorStore = vectorStore;
-        this.modelSettings = modelSettings;
+        this.agentSettings = agentSettings;
         this.runModel.agentLifeCycle = "starting";
         this.verbose = verbose || this.verbose;
         this.questionCreationChain = QuestionsCreationChain.from_llm(
-            ChatModel.model(this.modelSettings.questionCreationTemperature)
+            OAILLM.model(this.agentSettings.questionCreationTemperature)
         );
         this.mostPertinentQuestion = MostPertinentQuestion.from_llm(
-            ChatModel.model(
-                this.modelSettings.questionPrioritisationTemperature
+            OAILLM.model(
+                this.agentSettings.questionPrioritisationTemperature
             )
         );
         this.compiler = ResearchCompiler.from_llm(
-            ChatModel.model(this.modelSettings.compilerTemperature)
+            OAILLM.model(this.agentSettings.compilerTemperature)
         );
         this.qaChain = RetrievalStuffQA.from_llm(
-            ChatModel.model(this.modelSettings.qaChainTemperature),
+            OAILLM.model(this.agentSettings.qaChainTemperature),
             vectorStore.asRetriever(),
             { verbose: false, returnSourceDocuments: true }
         );
@@ -121,7 +115,7 @@ class Agent {
                     question: this.runModel.getOriginalQuestion(),
                     context: documents2String(currentDocuments),
                     prevQuestions,
-                    numQuestions: this.modelSettings.numQuestionPerIter,
+                    numQuestions: this.agentSettings.numQuestionPerIter,
                     startId,
                 }
             );
@@ -161,7 +155,7 @@ class Agent {
                 currentIter
             );
 
-            if (currentIter >= this.modelSettings.maxIter) {
+            if (currentIter >= this.agentSettings.maxIter) {
                 logThought(
                     "I am done with maximum allowed Iterations",
                     currentIter
@@ -181,7 +175,7 @@ class Agent {
         this.runModel.setFinalAnswer(finalAnswer);
 
         logThought(
-            `Here is the final answer after ${this.modelSettings.maxIter} hops:\n`
+            `Here is the final answer after ${this.agentSettings.maxIter} hops:\n`
         );
         logFinalAnswer(finalAnswer);
 

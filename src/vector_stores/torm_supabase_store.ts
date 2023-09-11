@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { TypeORMStore, DatabaseConnOptions } from "./type_orm_base.js";
-import { embeddingModel } from "../ai_models/openAi.js";
+import { embeddingModel } from "../ai_models/openAIChat.js";
 
 const database_conn_options: DatabaseConnOptions = {
     host: process.env.SUPABASE_URL,

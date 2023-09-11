@@ -1,10 +1,11 @@
 import { ResearchCompiler } from "../chains/index.js";
-import { ChatModel } from "../ai_models/openAi.js";
+import { ChatModel } from "../ai_models/openAIChat.js";
 import {
     string2Questions,
     questions2String,
 } from "../helpers/responseHelpers.js";
 import { Question } from "../agent/run-model.js";
+import { OAILLM } from "../ai_models/openAILLM.js";
 
 let question = "Why was Arjuna ready to Kill Yudhishthira?";
 let prevAnswer =
@@ -50,7 +51,7 @@ console.log('Context: ', context);
 
 
 let temperature = 0;
-const llm = ChatModel.model(temperature, true);
+const llm = OAILLM.model(temperature, true);
 let compiler = ResearchCompiler.from_llm(llm);
 let result = await compiler.predict({
     question,

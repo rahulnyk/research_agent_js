@@ -1,10 +1,11 @@
 import { MostPertinentQuestion } from "../chains/index.js";
-import { ChatModel } from "../ai_models/openAi.js";
+import { ChatModel } from "../ai_models/openAIChat.js";
 import {
     string2Questions,
     questions2String,
 } from "../helpers/responseHelpers.js";
 import { Question } from "../agent/run-model.js";
+import { OAILLM } from "../ai_models/openAILLM.js";
 
 let originalQuestion = "Why did the chicken cross the road";
 
@@ -38,8 +39,8 @@ let unansweredQuestions = questions2String(qs);
 
 console.log(typeof unansweredQuestions, unansweredQuestions);
 
-let temperature = 0;
-const llm = ChatModel.model(temperature, true);
+let temperature = 0.5;
+const llm = OAILLM.model(temperature, true);
 let mostPertinentQuestion = MostPertinentQuestion.from_llm(llm);
 let result = await mostPertinentQuestion.predict({
     originalQuestion,

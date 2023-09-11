@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
+import { BaseLanguageModel } from "langchain/base_language";
 import { LLMChain } from "langchain/chains";
-import { BaseChatModel } from "langchain/chat_models";
 import { PromptTemplate } from "langchain/prompts";
 
 dotenv.config();
@@ -19,10 +19,10 @@ const PROMPT: string =
     " Answer :";
 
 class ResearchCompiler extends LLMChain {
-    constructor(prompt: PromptTemplate, llm: BaseChatModel) {
+    constructor(prompt: PromptTemplate, llm: BaseLanguageModel) {
         super({ prompt, llm });
     }
-    static from_llm(llm: BaseChatModel): LLMChain {
+    static from_llm(llm: BaseLanguageModel): LLMChain {
         const compilerTemplate = PROMPT;
         const prompt = new PromptTemplate({
             template: compilerTemplate,

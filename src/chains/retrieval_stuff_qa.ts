@@ -2,15 +2,13 @@ import {
     RetrievalQAChain,
     RetrievalQAChainInput,
 } from "langchain/chains";
-import { ChatModel } from "../ai_models/openAi.js";
+import { ChatModel } from "../ai_models/openAIChat.js";
 import { PromptTemplate } from "langchain/prompts";
 import store from "../vector_stores/torm_supabase_store.js";
 import { BaseLanguageModel } from "langchain/base_language";
 import { BaseRetriever } from "langchain/schema/retriever";
 import { loadQAStuffChain } from "langchain/chains";
 
-const model = ChatModel.model(0);
-const retriever = store.asRetriever();
 
 const promptTemplate =
     "Use the following pieces of context\n" +

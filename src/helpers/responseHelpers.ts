@@ -1,6 +1,6 @@
 import { Question, QuestionStatus } from "../agent/run-model.js";
 import { Document } from "langchain/document";
-import { errorColor } from "./colors.js";
+import { logError } from "./agentLogger.js";
 
 export function string2Questions(
     qString: string,
@@ -10,8 +10,10 @@ export function string2Questions(
      * id: question?
      * This method converts string into array of type Question
      */
-    let questionList = qString.split("\n");
+    let questionList = qString.trim().split("\n");
+    
     let questions = questionList.flatMap((q) => {
+        // console.log(q);
         try {
             /** Splitting the response by '.' or ':'
              * because LLM randomly outputs any of these
@@ -25,8 +27,8 @@ export function string2Questions(
             };
             return question;
         } catch (e) {
-            console.log(errorColor(qString));
-            console.log(e);
+            logError(qString);
+            logError(e);
             return [];
         }
     });

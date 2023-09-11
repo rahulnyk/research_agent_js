@@ -1,16 +1,16 @@
 import Agent from "../agent/agent.js";
-import { ModelSettings } from "../agent/model-settings.js";
+import { AgentSettings } from "../agent/agent-settings.js";
 import store from "../vector_stores/torm_supabase_store.js";
 
-let originalQuestion = "?";
-let settings: ModelSettings = {
+let originalQuestion = "What according to Mahabharata are the four duties of a man?";
+let settings: AgentSettings = {
     maxIter: 5,
     numQuestionPerIter: 2,
-    questionCreationTemperature: 0.2,
-    questionPrioritisationTemperature: 0.2,
-    analyserTemperature: 0.2,
-    compilerTemperature: 0.2,
-    qaChainTemperature: 0.2,
+    questionCreationTemperature: 0.5,
+    questionPrioritisationTemperature: 0.5,
+    // analyserTemperature: 0,
+    compilerTemperature: 0,
+    qaChainTemperature: 0,
 };
 
 let agent = new Agent(originalQuestion, store, settings);
