@@ -1,5 +1,4 @@
-// import { Document } from "langchain/document";
-// import { Question } from "./run-model.js";
+
 import { AgentRunModel } from "./run-model.js";
 import { AgentSettings } from "./agent-settings.js";
 import {
@@ -8,8 +7,7 @@ import {
     MostPertinentQuestion,
     RetrievalStuffQA,
 } from "../chains/index.js";
-import { ChatModel } from "../ai_models/openAIChat.js";
-import { OAILLM } from "../ai_models/openAILLM.js";
+import { ChatModel, OAILLM } from "../ai_models/index.js";
 import { VectorStore } from "langchain/vectorstores";
 import {
     string2Questions,

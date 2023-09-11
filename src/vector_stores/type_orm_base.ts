@@ -4,41 +4,29 @@ import {
     TypeORMVectorStoreArgs,
 } from "langchain/vectorstores/typeorm";
 import { Embeddings } from "langchain/embeddings";
-
-interface DatabaseConnOptions {
-    username?: string;
-    password?: string;
-    database?: string;
-    host?: string;
-    port?: number;
-    tableName?: string;
-}
+import { DatabaseConnOptions } from "../config/types.js";
 
 class TypeORMStore {
     /**
      * This is just a thin wrapper over the type orm store
      * The table schema for embedding table
      * id: uuid, pageContent: text, metadata: jsonb, vector: vector_embeddings
-     * Default tablename is torm_embeddings
      */
-    
     type = "postgres";
     embeddings: Embeddings;
-    tableName = "torm_embeddings";
-
     dbOptions: TypeORMVectorStoreArgs;
 
-    constructor(embeddings: Embeddings, options?: DatabaseConnOptions) {
+    constructor(
+        tableName: string,
+        embeddings: Embeddings,
+        dbOptions: DatabaseConnOptions
+    ) {
         this.dbOptions = {
             postgresConnectionOptions: {
                 type: this.type,
-                host: options?.host || '',
-                port: options?.port || '',
-                username: options?.username || '',
-                password: options?.password || '',
-                database: options?.database || '',
+                ...dbOptions,
             } as DataSourceOptions,
-            tableName: options?.tableName || this.tableName,
+            tableName,
             verbose: true,
         };
         this.embeddings = embeddings;
@@ -54,5 +42,4 @@ class TypeORMStore {
     }
 }
 
-export {DatabaseConnOptions, TypeORMStore}
-
+export { DatabaseConnOptions, TypeORMStore };

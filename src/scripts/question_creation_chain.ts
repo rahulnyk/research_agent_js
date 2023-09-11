@@ -1,6 +1,6 @@
 import { QuestionsCreationChain } from "../chains/index.js";
-import { ChatModel } from "../ai_models/openAIChat.js";
-import { OAILLM } from "../ai_models/openAILLM.js";
+import { ChatModel } from "../ai_models/openai-chat.js";
+import { OAILLM } from "../ai_models/openai-llm.js";
 import { string2Questions, questions2String } from "../helpers/responseHelpers.js";
 import { Question } from "../agent/run-model.js";
 
@@ -38,7 +38,7 @@ let numQuestions = 2;
 let startId = 5;
 
 let temperature = 0.5;
-const llm = OAILLM.model(temperature, true);
+const llm = ChatModel.model(temperature, true);
 let questionCreationChain = QuestionsCreationChain.from_llm(llm);
 let result = await questionCreationChain.predict({
     question,
