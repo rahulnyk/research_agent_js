@@ -1,30 +1,12 @@
-import {
-    RetrievalQAChain,
-    RetrievalQAChainInput,
-} from "langchain/chains";
+import { RetrievalQAChain, RetrievalQAChainInput } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { BaseLanguageModel } from "langchain/base_language";
 import { BaseRetriever } from "langchain/schema/retriever";
 import { loadQAStuffChain } from "langchain/chains";
 
-
-const promptTemplate =
-    "Use the following pieces of context\n" +
-    " Context: {context}\n --- \n" +
-    " Your objective is to answer the following question\n" +
-    " Question:{question}\n --- \n" +
-    " Answer based only on the context and no other previous knowledge.\n" +
-    " don't try to make up an answer.\n" +
-    " If you don't know the answer, just say that you don't know.\n" +
-    " Answer in less than 200 words.\n" +
-    " Answer :";
-
-const prompt = PromptTemplate.fromTemplate(promptTemplate);
-
-
 interface StuffChainOptions {
-    verbose?: boolean,
-    returnSourceDocuments?: boolean,
+    verbose?: boolean;
+    returnSourceDocuments?: boolean;
 }
 
 export class RetrievalStuffQA extends RetrievalQAChain {
@@ -35,10 +17,23 @@ export class RetrievalStuffQA extends RetrievalQAChain {
     static from_llm(
         llm: BaseLanguageModel,
         retriever: BaseRetriever,
-        options?: StuffChainOptions,
+        answerLength: number,
+        options?: StuffChainOptions
     ): RetrievalQAChain {
+        const promptAnswerLength = `Answer as succinctly as possible in less than ${answerLength} words.`;
+        const promptTemplate =
+            "You are provided with a question and some helpful context to answer the question." +
+            " Question: '{question}'\n" +
+            " Context: [{context}] \n\n" +
+            "Your task is to answer the question based in the information given in the context" +
+            " Answer the question entirely based on the context and no other previous knowledge." +
+            " If the context provided is empty or irrelevant, just return 'Context not sufficient'.\n" +
+            promptAnswerLength;
+        const prompt = PromptTemplate.fromTemplate(promptTemplate);
+
         const qaChain = loadQAStuffChain(llm, {
-            prompt: prompt, verbose: options?.verbose,
+            prompt: prompt,
+            verbose: options?.verbose,
         });
         return new RetrievalStuffQA({
             retriever,

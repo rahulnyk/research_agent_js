@@ -2,7 +2,7 @@ import { MostPertinentQuestion } from "../chains/index.js";
 import { ChatModel } from "../ai_models/openai-chat.js";
 import {
     string2Questions,
-    questions2String,
+    questions2PromptString,
 } from "../helpers/responseHelpers.js";
 import { Question } from "../agent/run-model.js";
 import { OAILLM } from "../ai_models/openai-llm.js";
@@ -35,7 +35,7 @@ let qs: Question[] = [
         status: "unanswered",
     },
 ];
-let unansweredQuestions = questions2String(qs);
+let unansweredQuestions = questions2PromptString(qs);
 
 console.log(typeof unansweredQuestions, unansweredQuestions);
 

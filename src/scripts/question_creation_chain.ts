@@ -1,7 +1,7 @@
 import { QuestionsCreationChain } from "../chains/index.js";
 import { ChatModel } from "../ai_models/openai-chat.js";
 import { OAILLM } from "../ai_models/openai-llm.js";
-import { string2Questions, questions2String } from "../helpers/responseHelpers.js";
+import { string2Questions, questions2PromptString } from "../helpers/responseHelpers.js";
 import { Question } from "../agent/run-model.js";
 
 let question = "Why did the chicken cross the road";
@@ -30,7 +30,7 @@ let qs: Question[] = [
       status: 'unanswered'
     },
   ];
-let prevQuestions = questions2String(qs)
+let prevQuestions = questions2PromptString(qs)
 
 console.log('Previous Question String -->', prevQuestions)
 

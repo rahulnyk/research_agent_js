@@ -4,8 +4,6 @@ import { Question } from "../agent/run-model.js";
 import { OAILLM } from "../ai_models/openai-llm.js";
 
 let question = "Why was Arjuna ready to Kill Yudhishthira?";
-let prevAnswer =
-    "Arjuna was not ready to kill Yudhishthira. The context does not mention any situation where Arjuna was prepared to kill his brother.";
 
 let qs: Question[] = [
     {
@@ -37,13 +35,13 @@ let qs: Question[] = [
 ];
 
 let answeredQs = qs.filter(q => q.status=="answered")
-let context = answeredQs.reduce((c, q) => {
-    return c + `Question - ${q.question}\n Answer - ${q.answer}\n`
+let notes = answeredQs.reduce((c, q) => {
+    return c + `{ Question: ${q.question}, Answer: ${q.answer} }`
 }, '')
+let answerLength = 200
 
 console.log('Question: ', question);
-console.log('Previous Answer: ', prevAnswer);
-console.log('Context: ', context);
+console.log('Context: ', notes);
 
 
 let temperature = 0;
@@ -51,8 +49,8 @@ const llm = ChatModel.model(temperature, true);
 let compiler = ResearchCompiler.from_llm(llm);
 let result = await compiler.predict({
     question,
-    context,
-    prevAnswer,
+    notes,
+    answerLength,
 });
 
 console.log("Result --> ", result);

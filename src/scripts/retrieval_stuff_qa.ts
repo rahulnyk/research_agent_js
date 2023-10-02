@@ -7,10 +7,11 @@ import {store} from "../vector_stores/torm_store.js";
 let question = "Why did mahabharata war happen?";
 
 let temperature = 0;
-const llm = ChatModel.model(temperature);
+const llm = ChatModel.model(temperature, true);
+const answerLength = 200
 
-let chain = RetrievalStuffQA.from_llm(llm, store.asRetriever(), {
-    verbose: false,
+let chain = RetrievalStuffQA.from_llm(llm, store.asRetriever(), answerLength, {
+    verbose: true,
     returnSourceDocuments: true,
 });
 

@@ -7,6 +7,7 @@ import {
     answerColor,
     finalAsnwerColor,
     questionsColor,
+    questionListColor,
 } from "./colors.js";
 
 export const logThought = function (outPut: any, iter?: number | string) {
@@ -36,4 +37,8 @@ export const logError = function (outPut: any, iter?: number | string) {
 export const logNextQuestion = function (outPut: any, iter?: number | string) {
     if (iter) console.log(iterationColor(`[${iter}]`));
     console.log(nextQuestionColor(outPut));
+};
+export const logQuestionList = function (outPut: any, iter?: number | string) {
+    if (iter) console.log(iterationColor(`[${iter}]`));
+    console.log(questionListColor(outPut));
 };

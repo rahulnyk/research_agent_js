@@ -4,13 +4,16 @@ import {store} from "../vector_stores/torm_store.js";
 
 let originalQuestion = "What according to Mahabharata are the most important duties of a person";
 let settings: AgentSettings = {
-    maxIter: 5,
-    numQuestionPerIter: 2,
-    questionCreationTemperature: 0.5,
-    questionPrioritisationTemperature: 0.5,
-    // analyserTemperature: 0,
+    maxIter: 6,
+    numQuestionPerIter: 3,
+    numAtomisticQuestions: 2,
     compilerTemperature: 0,
     qaChainTemperature: 0,
+    questionPrioritisationTemperature: 0,
+    questionCreationTemperature: 0.5,
+    questionAtomizationTemperature: 0,
+    intermediateAnswerLength: 200,
+    finalAnswerLength: 1000,
 };
 
 let agent = new Agent(originalQuestion, store, settings);
