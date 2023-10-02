@@ -9,6 +9,7 @@ export function createDevConfig() {
         username: process.env.SUPABASE_DBUSER,
         password: process.env.SUPABASE_PASSWORD,
         database: process.env.SUPABASE_DATABASE,
+        user: process.env.SUPABASE_DBUSER,
     }
   });
 }

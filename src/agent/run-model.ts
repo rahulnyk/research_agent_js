@@ -24,7 +24,8 @@ type runStore = {
     id: string;
     originalQuestion: string;
     questions: Question[];
-    finalAnswer: string | undefined;
+    answerpad: string[];
+    // finalAnswer: string | undefined;
 };
 
 interface RunModel {
@@ -42,15 +43,21 @@ interface RunModel {
 
     getLastQuestionId(): number; // so the next set of questions have unique ids.
 
+    getLatestAnswer(): string;
+
+    addNewAnswer(answer: string): void;
+
     addQuestions(questions: Question[]): void;
 
-    setFinalAnswer(answer: string): void;
+    // setFinalAnswer(answer: string): void;
 
     setCurrentQuestion(id: number): void;
 
     getCurrentQuestion(): Question;
 
     setAnswer(id: number, q: Omit<Question, 'question' | 'status' | 'id'>): void;
+
+    getAnswwerpad(): string[];
 }
 
 export class AgentRunModel implements RunModel {
@@ -62,7 +69,8 @@ export class AgentRunModel implements RunModel {
             id: v4().toString(),
             originalQuestion: originalQuestion,
             questions: [],
-            finalAnswer: undefined,
+            answerpad: [],
+            // finalAnswer: undefined,
         };
         this.agentLifeCycle = "running";
     }
@@ -113,27 +121,18 @@ export class AgentRunModel implements RunModel {
         this.run.questions[index] = {...this.run.questions[index], ...answer, status: 'answered'}
     }
 
+    getLatestAnswer(): string {
+        let len = this.run.answerpad.length;
+        if (len == 0) {
+            return "";
+        } else {
+            return this.run.answerpad[len -1];
+        }
+    }
 
-    // getCurrentQuestionString(): string {
-    //     return this.currentQuestion?.question || this.run.originalQuestion;
-    // }
-
-    // setCurrentQuestion(question: Question): void {
-    //     this.currentQuestion = question;
-    //     // consider the current question to be answered
-    //     let index = this.run.questions.findIndex((q) => q.id == question.id);
-    //     this.run.questions[index].status = "answered";
-    // }
-
-    // setCurrentAnswer(answer: string): void {
-    //     const questionId = this.currentQuestion?.id;
-    //     if (questionId) {
-    //         let index = this.run.questions.findIndex((q) => q.id == questionId);
-    //         this.run.questions[index].answer = answer;
-    //     } else {
-    //         console.error("Current Question id not found");
-    //     }
-    // }
+    addNewAnswer(answer: string): void {
+        this.run.answerpad.push(answer);
+    }
 
     addQuestions(questions: Question[]): void {
         this.run.questions.push(...questions);
@@ -145,7 +144,7 @@ export class AgentRunModel implements RunModel {
         return lastQ.id;
     }
 
-    setFinalAnswer(answer: string): void {
-        this.run.finalAnswer = answer;
+    getAnswwerpad(): string[] {
+        return this.run.answerpad;
     }
 }

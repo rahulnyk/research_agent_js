@@ -6,9 +6,10 @@ import {
     MostPertinentQuestion,
     RetrievalStuffQA,
     ResearchCompiler,
+    RefineAnswer,
 } from "../chains/index.js";
 import { ChatModel, OAILLM } from "../ai_models/index.js";
-import { VectorStore } from "langchain/vectorstores";
+import { VectorStore } from "langchain/vectorstores/base";
 import {
     string2Questions,
     questions2PromptString,
@@ -34,6 +35,7 @@ class Agent {
     questionAtomizer: QuestionAtomizer;
     questionCreator: QuestionsCreationChain;
     pertinentQuestionSelector: MostPertinentQuestion;
+    refineAnswer: RefineAnswer;
     qaChain: RetrievalStuffQA;
     compiler: ResearchCompiler;
 
@@ -60,13 +62,16 @@ class Agent {
             )
         );
         this.compiler = ResearchCompiler.from_llm(
-            ChatModel.model(this.agentSettings.compilerTemperature), 
+            ChatModel.model(this.agentSettings.compilerTemperature)
         );
         this.qaChain = RetrievalStuffQA.from_llm(
             ChatModel.model(this.agentSettings.qaChainTemperature),
             vectorStore.asRetriever(),
             this.agentSettings.intermediateAnswerLength,
             { verbose: verbose, returnSourceDocuments: true }
+        );
+        this.refineAnswer = RefineAnswer.from_llm(
+            ChatModel.model(this.agentSettings.refineAnswerTemperature)
         );
     }
 
@@ -100,7 +105,7 @@ class Agent {
                 answer: text,
                 documents: sourceDocuments,
             });
-            logAnswer(text)
+            logAnswer(text);
         }
 
         let currentContext = qA2PromptString(
@@ -168,9 +173,30 @@ class Agent {
             logThought("\nAnswer: ");
             logAnswer(text);
 
-            let questionList = this.runModel.getAllQuestions().reduce((c, q) => {
-                return c + `[${q.status}] ${q.id}. ${q.question}\n`
-            }, '')
+            /**
+             * STEP 4: Refine the existing Answer
+             */
+
+            let newAnswer = await this.refineAnswer.predict({
+                originalQuestion: this.runModel.getOriginalQuestion(),
+                existingAnswer: this.runModel.getLatestAnswer(),
+                context: `${
+                    currentQuestion.question
+                }\n${currentContext}`,
+            });
+
+            this.runModel.addNewAnswer(newAnswer);
+            logThought(
+                "Refined the original answer based on new context",
+                currentIter
+            );
+            logFinalAnswer(newAnswer, currentIter);
+
+            let questionList = this.runModel
+                .getAllQuestions()
+                .reduce((c, q) => {
+                    return c + `[${q.status}] ${q.id}. ${q.question}\n`;
+                }, "");
             logQuestionList(questionList);
 
             if (currentIter >= this.agentSettings.maxIter) {
@@ -182,24 +208,13 @@ class Agent {
             }
         } while (this.runModel.agentLifeCycle != "stopping");
 
-        /** STEP 4
-         * Compile the results if max iterations are done
-         */
-        let notes = qA2PromptString(this.runModel.getAnsweredQuestions());
-        let finalAnswer = await this.compiler.predict({
-            question: this.runModel.getOriginalQuestion(),
-            notes,
-            answerLength: this.agentSettings.finalAnswerLength,
-        });
-        this.runModel.setFinalAnswer(finalAnswer);
-
-        logThought(
-            `Here is the final answer after ${this.agentSettings.maxIter} hops:\n`
-        );
-        logFinalAnswer(finalAnswer);
+        logThought(`Here are the answers refined during succssive hops:\n`);
+        let answerpad = this.runModel.getAnswwerpad()
+        for (let answer of answerpad) {
+            logFinalAnswer(`${answer}\n------------\n`)
+        }
 
         this.runModel.agentLifeCycle = "stopped";
-
         return this.runModel;
     }
 }

@@ -1,8 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { OpenAI } from "langchain/llms/openai";
-import { BaseLLM } from "langchain/llms";
-
+import { BaseLLM } from "langchain/llms/base";
 
 class OAILLM {
 

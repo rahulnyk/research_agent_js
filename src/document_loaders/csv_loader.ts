@@ -34,7 +34,7 @@ export default function (
     const lcDocs = documents.map((doc) => {
         let text = doc[pageContentCol];
         delete doc[pageContentCol];
-        return new Document({ pageContent: text, metadata: doc });
+        return new Document({ pageContent: String(text), metadata: doc });
     });
     return lcDocs;
 }

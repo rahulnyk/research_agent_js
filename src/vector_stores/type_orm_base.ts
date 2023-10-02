@@ -3,8 +3,8 @@ import {
     TypeORMVectorStore,
     TypeORMVectorStoreArgs,
 } from "langchain/vectorstores/typeorm";
-import { Embeddings } from "langchain/embeddings";
 import { DatabaseConnOptions } from "../config/types.js";
+import { Embeddings } from "langchain/embeddings/base";
 
 class TypeORMStore {
     /**

@@ -5,6 +5,7 @@ export interface AgentSettings {
     questionAtomizationTemperature: number;
     questionPrioritisationTemperature: number;
     compilerTemperature: number; 
+    refineAnswerTemperature: number;
     qaChainTemperature: number;
     numAtomisticQuestions: number;
     intermediateAnswerLength: number;

@@ -5,6 +5,7 @@ export interface DatabaseConnOptions {
     database: string | undefined;
     host: string | undefined;
     port: number;
+    user: string | undefined;
 }
 
 

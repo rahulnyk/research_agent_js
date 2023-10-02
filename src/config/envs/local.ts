@@ -9,6 +9,7 @@ export function createLocalConfig() {
         username: process.env.PGVECTOR_DBUSER,
         password: process.env.PGVECTOR_PASSWORD,
         database: process.env.PGVECTOR_DATABASE,
+        user: process.env.PGVECTOR_DBUSER,
     }
   });
 }
